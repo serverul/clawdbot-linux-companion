@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+release/**/*
+!release/*.yml
+!release/*.json
+
+# Package formats
+*.deb
+*.AppImage
+*.rpm
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Electron build dirs
+linux-unpacked/
+darwin-unpacked/
+win-unpacked/
