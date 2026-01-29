@@ -1,12 +1,12 @@
 /**
  * AppState.js - Centralized application state management
- * Shared between Mac and Linux companions
+ * Adapted for Linux Companion from Mac Companion Swift version
  */
 
 const { EventEmitter } = require('events');
 const Store = require('electron-store');
 const path = require('path');
-const fs = require('fs');
+const os = require('os');
 
 class AppState extends EventEmitter {
   constructor() {
