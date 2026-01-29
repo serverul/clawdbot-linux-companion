@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clawdbot Companion</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-tertiary: #0f3460;
+      --accent: #e94560;
+      --accent-hover: #ff6b6b;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --error: #ef4444;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: var(--bg-secondary);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--bg-tertiary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .logo-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .logo-text span {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    
+    #wsStatusDot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .container {
+      padding: 20px;
+    }
+    
+    .section {
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    
+    .quick-btn {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px 10px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .quick-btn:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .quick-btn:active {
+      transform: translateY(0);
+    }
+    
+    .quick-btn .icon {
+      font-size: 20px;
+    }
+    
+    .quick-btn .label {
+      font-size: 11px;
+      text-align: center;
+    }
+    
+    .chat-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .chat-header {
+      background: var(--bg-tertiary);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .chat-header h3 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .message {
+      margin-bottom: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user {
+      text-align: right;
+    }
+    
+    .message .bubble {
+      display: inline-block;
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    
+    .message.user .bubble {
+      background: var(--accent);
+      border-bottom-right-radius: 4px;
+    }
+    
+    .message.bot .bubble {
+      background: var(--bg-tertiary);
+      border-bottom-left-radius: 4px;
+    }
+    
+    .message .time {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      display: block;
+    }
+    
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .chat-input {
+      flex: 1;
+      background: var(--bg-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+    
+    .chat-input:focus {
+      border-color: var(--accent);
+    }
+    
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    
+    .send-btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.05);
+    }
+    
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .settings-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-label {
+      font-size: 13px;
+    }
+    
+    .setting-input {
+      background: var(--bg-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-size: 12px;
+      width: 200px;
+    }
+    
+    .setting-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--bg-tertiary);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .toggle.active {
+      background: var(--accent);
+    }
+    
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+    
+    .toggle.active::after {
+      transform: translateX(20px);
+    }
+    
+    .status-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    
+    .status-item {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    .status-item .label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    
+    .status-item .value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .minimize-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 8px;
+      font-size: 18px;
+    }
+    
+    .minimize-btn:hover {
+      color: var(--text-primary);
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+    
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+    
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .modal-header h2 {
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+    
+    .modal-body {
+      padding: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--text-primary);
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .form-group input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-primary);
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+  </style>
+</head>
+<body>
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>⚙️ Setări Conexiune</h2>
+        <button class="modal-close" onclick="closeSettings()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>IP Clawdbot</label>
+          <input type="text" id="settingIp" placeholder="192.168.1.100 sau 10.10.2.121">
+          <p class="help-text">Adresa IP a calculatorului unde rulează Clawdbot</p>
+        </div>
+        <div class="form-group">
+          <label>Port API REST</label>
+          <input type="text" id="settingApiPort" placeholder="4000">
+          <p class="help-text">Port pentru trimiterea mesajelor</p>
+        </div>
+        <div class="form-group">
+          <label>Port WebSocket</label>
+          <input type="text" id="settingWsPort" placeholder="4001">
+          <p class="help-text">Port pentru mesaje în timp real</p>
+        </div>
+        <div class="form-group">
+          <label>API Secret Key</label>
+          <input type="password" id="settingApiSecret" placeholder="clawdbot-secret-2026">
+          <p class="help-text">Cheia de autentificare pentru API</p>
+        </div>
+        <div class="form-group" style="display: flex; gap: 20px; margin-top: 20px;">
+          <div style="flex: 1;">
+            <label style="margin-bottom: 12px;">Auto-Conectare WS</label>
+            <div class="toggle active" id="autoConnect" onclick="toggleSetting('autoConnect')" style="margin-top: 8px;"></div>
+          </div>
+          <div style="flex: 1;">
+            <label style="margin-bottom: 12px;">Notificări</label>
+            <div class="toggle active" id="notifications" onclick="toggleSetting('notifications')" style="margin-top: 8px;"></div>
+          </div>
+          <div style="flex: 1;">
+            <label style="margin-bottom: 12px;">Start Minimizat</label>
+            <div class="toggle active" id="startMinimized" onclick="toggleSetting('startMinimized')" style="margin-top: 8px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSettings()">Anulează</button>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Salvează</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">
+        <h1>Clawdbot Companion</h1>
+        <span>Linux Desktop App</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="status-indicator">
+        <div class="status-dot" id="wsStatusDot"></div>
+        <span id="wsStatus">Conectat</span>
+      </div>
+      <button class="minimize-btn" onclick="window.electronAPI.minimize()">─</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <!-- Quick Actions -->
+    <div class="section">
+      <div class="section-title">Acțiuni Rapide</div>
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="sendQuickAction('Status')">
+          <span class="icon">📊</span>
+          <span class="label">Status</span>
+        </button>
+        <button class="quick-btn" onclick="sendQuickAction('Sessions')">
+          <span class="icon">💬</span>
+          <span class="label">Sesiuni</span>
+        </button>
+        <button class="quick-btn" onclick="sendQuickAction('Health')">
+          <span class="icon">💚</span>
+          <span class="label">Health</span>
+        </button>
+        <button class="quick-btn" onclick="refreshStatus()">
+          <span class="icon">🔄</span>
+          <span class="label">Refresh</span>
+        </button>
+        <button class="quick-btn" onclick="showNotifications()">
+          <span class="icon">🔔</span>
+          <span class="label">Notificări</span>
+        </button>
+        <button class="quick-btn" onclick="showSettings()">
+          <span class="icon">⚙️</span>
+          <span class="label">Setări</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Chat -->
+    <div class="section">
+      <div class="section-title">Chat Rapid</div>
+      <div class="chat-section">
+        <div class="chat-header">
+          <h3>Conversație cu Clawdbot</h3>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot">
+            <span class="bubble">Bună! Sunt Clawdbot. Scrie-mi ce vrei!</span>
+            <span class="time">Acum</span>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Scrie un mesaj..." onkeypress="handleKeypress(event)">
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Status -->
+    <div class="section">
+      <div class="section-title">Stare Sistem</div>
+      <div class="status-section">
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">Gateway</div>
+            <div class="value" id="gatewayVersion">-</div>
+          </div>
+          <div class="status-item">
+            <div class="label">Canale Active</div>
+            <div class="value" id="activeChannels">-</div>
+          </div>
+          <div class="status-item">
+            <div class="label">Sesiuni</div>
+            <div class="value" id="sessionCount">-</div>
+          </div>
+          <div class="status-item">
+            <div class="label">Uptime</div>
+            <div class="value" id="uptime">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // API Bridge
+    window.electronAPI = {
+      minimize: () => window.clawdbot.minimize?.(),
+      getConfig: () => window.clawdbot.getConfig(),
+      saveConfig: (config) => window.clawdbot.saveConfig(config),
+      fetchStatus: () => window.clawdbot.fetchStatus(),
+      sendMessage: (message) => window.clawdbot.sendMessage(message),
+      getMessages: () => window.clawdbot.getMessages(),
+      connectWs: () => window.clawdbot.connectWs()
+    };
+    
+    let messages = [];
+    
+    async function init() {
+      try {
+        const config = await window.clawdbot.getConfig();
+        
+        // Parse IP and ports from URL
+        const apiUrl = config.apiUrl || 'http://10.10.2.121:4000';
+        const wsUrl = config.wsUrl || 'ws://10.10.2.121:4001';
+        
+        // Extract IP
+        let ip = '10.10.2.121';
+        const ipMatch = apiUrl.match(/:\/\/([^\/:]+)/);
+        if (ipMatch) ip = ipMatch[1];
+        
+        // Extract ports
+        let apiPort = '4000';
+        let wsPort = '4001';
+        const apiPortMatch = apiUrl.match(/:(\d+)/);
+        const wsPortMatch = wsUrl.match(/:(\d+)/);
+        if (apiPortMatch) apiPort = apiPortMatch[1];
+        if (wsPortMatch) wsPort = wsPortMatch[1];
+        
+        document.getElementById('settingIp').value = ip;
+        document.getElementById('settingApiPort').value = apiPort;
+        document.getElementById('settingWsPort').value = wsPort;
+        document.getElementById('settingApiSecret').value = config.apiSecret || '';
+        document.getElementById('startMinimized').classList.toggle('active', config.startMinimized);
+        document.getElementById('notifications').classList.toggle('active', config.notifications);
+        document.getElementById('autoConnect').classList.toggle('active', config.autoConnect);
+        
+        // Listen for WebSocket status
+        window.electronAPI.connectWs();
+      } catch (err) {
+        console.log('Config error:', err);
+      }
+    }
+    
+    function showSettings() {
+      document.getElementById('settingsModal').classList.add('active');
+    }
+    
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('active');
+    }
+    
+    async function saveSettings() {
+      const ip = document.getElementById('settingIp').value.trim() || '10.10.2.121';
+      const apiPort = document.getElementById('settingApiPort').value.trim() || '4000';
+      const wsPort = document.getElementById('settingWsPort').value.trim() || '4001';
+      const apiSecret = document.getElementById('settingApiSecret').value.trim();
+      
+      const config = {
+        apiUrl: `http://${ip}:${apiPort}`,
+        wsUrl: `ws://${ip}:${wsPort}`,
+        apiSecret: apiSecret,
+        autoConnect: document.getElementById('autoConnect').classList.contains('active'),
+        startMinimized: document.getElementById('startMinimized').classList.contains('active'),
+        notifications: document.getElementById('notifications').classList.contains('active')
+      };
+      
+      await window.clawdbot.saveConfig(config);
+      closeSettings();
+      addMessage('✅ Setări salvate! Reconectare...', 'bot');
+      window.electronAPI.connectWs();
+    }
+    
+    // WebSocket status listeners
+    window.electronAPI.wsStatus = (status) => {
+      const el = document.getElementById('wsStatus');
+      const dot = document.getElementById('wsStatusDot');
+      if (status === 'Conectat') {
+        el.textContent = 'WS Conectat';
+        dot.style.background = '#4ade80';
+      } else if (status === 'Deconectat') {
+        el.textContent = 'WS Deconectat';
+        dot.style.background = '#fbbf24';
+      } else {
+        el.textContent = 'WS Eroare';
+        dot.style.background = '#ef4444';
+      }
+    };
+    
+    async function refreshStatus() {
+      try {
+        const status = await window.clawdbot.fetchStatus();
+        if (status && !status.error) {
+          document.getElementById('wsStatus').textContent = 'API Online';
+        }
+      } catch (err) {
+        document.getElementById('wsStatus').textContent = 'Eroare API';
+      }
+    }
+    
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      addMessage(message, 'user');
+      input.value = '';
+      
+      try {
+        const response = await window.clawdbot.sendMessage(message);
+        if (response && response.response) {
+          addMessage(response.response, 'bot');
+        } else if (response && response.error) {
+          addMessage('Eroare: ' + response.error, 'bot');
+        }
+      } catch (err) {
+        addMessage('Eroare de conectare', 'bot');
+      }
+    }
+    
+    async function sendQuickAction(actionName) {
+      try {
+        const response = await window.clawdbot.sendQuickAction(actionName);
+        addMessage(`Acțiune: ${actionName}`, 'user');
+        if (response && response.response) {
+          addMessage(response.response.substring(0, 200), 'bot');
+        }
+        refreshStatus();
+      } catch (err) {
+        addMessage('Eroare la executarea acțiunii', 'bot');
+      }
+    }
+    
+    function addMessage(text, role) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = `
+        <span class="bubble">${escapeHtml(text)}</span>
+        <span class="time">${new Date().toLocaleTimeString('ro-RO')}</span>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function handleKeypress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+    
+    function toggleSetting(name) {
+      const el = document.getElementById(name);
+      el.classList.toggle('active');
+    }
+    
+    // Auto-refresh status
+    setInterval(refreshStatus, 30000);
+    
+    init();
+  </script>
+</body>
+</html>
