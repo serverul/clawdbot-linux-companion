@@ -14,7 +14,7 @@ Aplicație desktop pentru Linux care se integrează cu Clawdbot pentru automatiz
 
 - **Linux** - Ubuntu 20.04+, Debian, Fedora
 - Electron Runtime (inclus în pachet)
-- Conexiuni internet pentru Clawdbot Gateway
+- Conexiune internet pentru Clawdbot Gateway
 
 ## Instalare
 
@@ -67,7 +67,7 @@ npm run build:linux    # creează .deb, .rpm, AppImage
 
 MIT License - vezi LICENSE
 
-## Contact
+## Suport
 
-- GitHub: https://github.com/clawdbot/clawdbot
-- Suport: vlad@videocore.ro
+- GitHub: https://github.com/clawdbot
+- Issues: https://github.com/clawdbot/clawdbot-linux-companion/issues
