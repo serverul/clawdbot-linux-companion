@@ -1,0 +1,49 @@
+{
+  "name": "clawdbot-linux-companion",
+  "version": "1.0.0",
+  "description": "Clawdbot Companion pentru Linux - Aplicație desktop pentru automatizări",
+  "main": "index.js",
+  "homepage": "https://github.com/clawdbot/clawdbot",
+  "author": {
+    "name": "Vlad",
+    "email": "vlad@videocore.ro"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "clawdbot",
+    "automation",
+    "linux",
+    "desktop"
+  ],
+  "author": "Vlad",
+  "license": "MIT",
+  "build": {
+    "appId": "ro.videocore.clawdbot-companion",
+    "productName": "Clawdbot Companion",
+    "directories": {
+      "output": "release"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Network",
+      "maintainer": "Vlad <vlad@videocore.ro>"
+    }
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "electron-store": "^8.1.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}
