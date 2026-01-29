@@ -8,18 +8,25 @@ Aplicație desktop pentru Linux care se integrează cu Clawdbot pentru automatiz
 - 🔔 Notificări desktop
 - 📡 Conectivitate Gateway pentru automatizări
 - 🔧 Configurare simplă
+- 🎨 Dark theme modern
+
+## Platformă
+
+- **Linux** - Ubuntu 20.04+, Debian, Fedora
+- Electron Runtime (inclus în pachet)
+- Conexiuni internet pentru Clawdbot Gateway
 
 ## Instalare
 
 ### Din fișier .deb (Ubuntu/Debian)
 ```bash
 sudo dpkg -i clawdbot-linux-companion_1.0.0_amd64.deb
-sudo apt-get install -f  # rezolvă dependențele
+sudo apt-get install -f # rezolvă dependențele
 ```
 
 ### Din fișier .rpm (Fedora/RHEL)
 ```bash
-sudo dnf install clawdbot-linux-companion-1.0.0.x86_64.rpm
+sudo dnf install clawdbot-linux-companion_1.0.0.x86_64.rpm
 ```
 
 ### Din AppImage
@@ -31,7 +38,7 @@ chmod +x "Clawdbot Companion-1.0.0.AppImage"
 ## Cerințe
 
 - Ubuntu 20.04+ / Fedora 34+
-- Electron Runtime (inclus în pachet)
+- Electron Runtime (inclus)
 - Conexiune internet pentru Clawdbot Gateway
 
 ## Configurare
@@ -43,13 +50,11 @@ Pornește aplicația și configurează:
 
 ## Dezinstalare
 
-```bash
 # Ubuntu/Debian
 sudo apt remove clawdbot-linux-companion
 
 # Fedora
 sudo dnf remove clawdbot-linux-companion
-```
 
 ## Build
 
